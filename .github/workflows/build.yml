@@ -18,3 +18,36 @@ jobs:
         run: cmake --build build --parallel 2
       - name: Run tests
         run: ctest --test-dir build --output-on-failure
+
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Qt 6 for MSVC
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          cache: true
+      - name: Configure
+        shell: pwsh
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" -DPCFORGE_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build build --config Release --parallel 2
+      - name: Run tests
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Package Windows desktop app
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "package/PCForge" | Out-Null
+          Copy-Item "build/Release/PCForge.exe" "package/PCForge/"
+          & "$env:QT_ROOT_DIR/bin/windeployqt.exe" --release --compiler-runtime "package/PCForge/PCForge.exe"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCForge-Windows-x64
+          path: package/PCForge/
+          if-no-files-found: error
