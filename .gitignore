@@ -1,0 +1,21 @@
+# CMake, Qt Creator, Visual Studio, and generated binaries
+/build/
+/build-*/
+/cmake-build-*/
+CMakeUserPresets.json
+CMakeFiles/
+CMakeCache.txt
+*.user
+.vs/
+.idea/
+.vscode/
+*.exe
+*.dll
+*.obj
+*.pdb
+*.o
+*.a
+*.so
+*.dylib
+*.app/
+.DS_Store
