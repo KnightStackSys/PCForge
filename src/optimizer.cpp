@@ -98,3 +98,5 @@ Proposal generateBuild(const QVector<Part> &catalog, const Preferences &pref) {
     response.error = "No fully compatible build found within the budget.";
     return response;
 }
+
+} // namespace pcforge
