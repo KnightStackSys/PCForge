@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.21)
+project(PCForge VERSION 0.1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Widgets)
+qt_standard_project_setup()
+
+add_library(pcforge_core STATIC src/core.cpp src/optimizer.cpp)
+target_include_directories(pcforge_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(pcforge_core PUBLIC Qt6::Core)
+
+qt_add_executable(PCForge WIN32 MACOSX_BUNDLE src/main.cpp src/mainwindow.cpp src/mainwindow.h)
+target_link_libraries(PCForge PRIVATE pcforge_core Qt6::Widgets)
+set_target_properties(PCForge PROPERTIES WIN32_EXECUTABLE TRUE MACOSX_BUNDLE TRUE)
+install(TARGETS PCForge BUNDLE DESTINATION . RUNTIME DESTINATION bin)
+
+option(PCFORGE_BUILD_TESTS "Build PCForge core tests" ON)
+if(PCFORGE_BUILD_TESTS)
+    enable_testing()
+    find_package(Qt6 6.4 REQUIRED COMPONENTS Test)
+    qt_add_executable(pcforge_tests tests/test_core.cpp)
+    target_link_libraries(pcforge_tests PRIVATE pcforge_core Qt6::Test)
+    add_test(NAME pcforge_core COMMAND pcforge_tests)
+endif()
